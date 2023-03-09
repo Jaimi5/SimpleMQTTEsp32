@@ -1,16 +1,7 @@
+#include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-
-// WiFi
-const char* ssid = "****";
-const char* password = "*****";
-
-// MQTT Broker
-const char* mqtt_broker = "192.168.1.11";
-const char* topic = "outTopic";
-const char* mqtt_username = "";
-const char* mqtt_password = "";
-const int mqtt_port = 1883;
+#include <config.h>
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -30,21 +21,21 @@ void setup() {
     // Set software serial baud to 115200;
     Serial.begin(115200);
     // connecting to a WiFi network
-    WiFi.begin(ssid, password);
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.println("Connecting to WiFi..");
     }
     Serial.println("Connected to the WiFi network");
     //connecting to a mqtt broker
-    client.setServer(mqtt_broker, mqtt_port);
+    client.setServer(MQTT_SERVER, MQTT_PORT);
     client.setCallback(callback);
 
     while (!client.connected()) {
         String client_id = "esp32-client-";
         client_id += String(WiFi.macAddress());
         Serial.printf("The client %s connects to the public mqtt broker\n", client_id.c_str());
-        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+        if (client.connect(client_id.c_str(), MQTT_USERNAME, MQTT_PASSWORD)) {
             Serial.println("Public emqx mqtt broker connected");
         }
         else {
@@ -54,8 +45,8 @@ void setup() {
         }
     }
     // publish and subscribe
-    client.publish(topic, "Hi EMQX I'm ESP32 ^^");
-    client.subscribe(topic);
+    client.publish(MQTT_TOPIC, "Hi EMQX I'm ESP32 ^^");
+    client.subscribe(MQTT_TOPIC);
 }
 
 
